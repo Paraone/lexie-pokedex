@@ -1,7 +1,8 @@
 import React, { ChangeEvent } from 'react'
-import { Container, Grid, InputAdornment, TextField, Typography, Box, Button, IconButton } from '@mui/material'
+import { Container, Grid, InputAdornment, TextField, Typography, Box, Button, IconButton, Select, MenuItem, InputLabel, SelectChangeEvent } from '@mui/material'
 import PokemonCard from '../components/PokemonCard'
-import { Field, usePokemonContext } from '../components/Contexts/PokemonProvider'
+import PokemonTypeIcon from '../components/PokemonTypeIcon'
+import { Field, usePokemonContext, PokemonType } from '../components/Contexts/PokemonProvider'
 import { Search, FavoriteBorder, Favorite, Close } from '@mui/icons-material'
 
 const Home: React.FC = () => {
@@ -15,6 +16,8 @@ const Home: React.FC = () => {
     filters,
     addFilter,
     removeFilter,
+    types,
+    setTypes
   } = usePokemonContext()
 
   function handleQueryChange(event: ChangeEvent<HTMLInputElement>) {
@@ -27,6 +30,13 @@ const Home: React.FC = () => {
     } else {
       addFilter(Field.favourite, true)
     }
+  }
+
+  const onSelectChange = (e: SelectChangeEvent<string[]>) => {
+    const value = e?.target?.value;
+    if (!Array.isArray(value)) return;
+    if (value[0] === 'none') value.shift();
+    setTypes(value as PokemonType[]);
   }
 
   return (
@@ -70,14 +80,47 @@ const Home: React.FC = () => {
         </Button>
       </Box>
 
+      <Select 
+        className='my-select'
+        onChange={onSelectChange} 
+        labelId="label" 
+        id="select" 
+        value={types.length ? [...types] : ["none"]} 
+        multiple
+        sx={{
+          mb: '1rem',
+        }}
+      >
+        <MenuItem key={'none'} value="none" disabled>
+              {
+                <>
+                  <PokemonTypeIcon type={'grass' as PokemonType}/>
+                  <span>Type</span>
+                </>
+              }
+        </MenuItem>
+        {
+          Object.keys(PokemonType).map((type, index) => (
+            <MenuItem key={index} value={type}>
+              {
+                <>
+                  <PokemonTypeIcon type={type as PokemonType}/>
+                  <span>{type}</span>
+                </>
+              }
+            </MenuItem>
+          ))
+        }
+      </Select>
+
       <Grid container spacing={2}>
-        {pokemon.map((pokemon) => (
+        {pokemon.map((pokemon, index) => (
           <Grid
             item
             xs={12}
             sm={6}
             md={4}
-            key={pokemon.name}
+            key={index}
           >
             <PokemonCard
               pokemon={pokemon}

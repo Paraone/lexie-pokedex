@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SvgIcon, SvgIconProps } from '@mui/material'
 import { PokemonType } from './Contexts/PokemonProvider'
 import { ReactComponent as BugIcon } from '../assets/icons/bug.svg'
@@ -29,6 +29,10 @@ const PokemonTypeIcon: React.FC<PokemonTypeIconProps> = ({
   ...props
 }) => {
   const [icon, setIcon] = useState<React.FC>(getIcon())
+
+  useEffect(() => {
+    setIcon(getIcon);
+  }, [type])
 
   function getIcon() {
     switch (type) {
