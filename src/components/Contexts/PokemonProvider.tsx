@@ -135,7 +135,7 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
     const pokeTypePromises = pokemonTypes.map((pokeType) => {
       return new Promise<INamedApiResource<IPokemon>[]>(async (resolve) => {
         const res = await PokeAPI.Type.resolve(pokeType)
-        const pokies = Object.values(res.pokemon || {}).map(({pokemon}) => pokemon)
+        const pokies = Object.values(res.pokemon || {}).map(({pokemon}) => pokemon).filter(({url}) => isOG(url))
         resolve(pokies)
       })
     })

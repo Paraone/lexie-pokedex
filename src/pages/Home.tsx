@@ -1,5 +1,16 @@
 import React, { ChangeEvent } from 'react'
-import { Container, Grid, InputAdornment, TextField, Typography, Box, Button, IconButton, Select, MenuItem, InputLabel, SelectChangeEvent } from '@mui/material'
+import { 
+  Container, 
+  Grid, 
+  InputAdornment, 
+  TextField, 
+  Typography, 
+  Box, 
+  Button, 
+  IconButton, 
+  Select, 
+  MenuItem,  
+  SelectChangeEvent } from '@mui/material'
 import PokemonCard from '../components/PokemonCard'
 import PokemonTypeIcon from '../components/PokemonTypeIcon'
 import { Field, usePokemonContext, PokemonType } from '../components/Contexts/PokemonProvider'
