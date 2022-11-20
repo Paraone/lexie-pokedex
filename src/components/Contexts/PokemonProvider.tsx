@@ -19,6 +19,8 @@ interface PokemonContextData {
   filters: Filters
   addFilter: (field: Field, value: FilterValue) => void
   removeFilter: (field: Field) => void
+  types: PokemonType[]
+  setTypes: (types: PokemonType[]) => void
 }
 
 export const PokemonContext = React.createContext<PokemonContextData | undefined>(undefined)
@@ -61,6 +63,7 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
   const [data, setData] = useState<INamedApiResource<IPokemon>[]>()
   const [pokemon, setPokemon] = useState<INamedApiResource<IPokemon>[]>()
   const [favourites, setFavourites] = useState<string[]>([])
+  const [types, setTypes] = useState<PokemonType[]>([]);
   const [query, setQuery] = useState<string>('')
   const [filters, setFilters] = useState<Filters>({} as Filters)
   const [error, setError] = useState<any>()
@@ -68,6 +71,11 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
   useEffect(() => {
     fetchPokemon()
   }, [])
+
+  useEffect(() => {
+    if (!types.length) fetchPokemon();
+    else fetchPokemonByType(types)
+  }, [types])
 
   useEffect(() => {
     filterData()
@@ -96,7 +104,7 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
     }
 
     if (query) {
-      filteredData = filteredData.filter((pokemon) => pokemon.name.includes(query))
+      filteredData = filteredData.filter((pokemon) => pokemon.name.includes(query.toLowerCase()))
     }
 
     filteredData.sort((a, b) => {
@@ -118,6 +126,26 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
       const response = await PokeAPI.Pokemon.list(150, 0)
       setData(response.results)
       setPokemon(response.results)
+    } catch (error) {
+      setError(error)
+    }
+  }
+
+  const fetchPokemonByType = async (pokemonTypes: PokemonType[]) => {
+    const pokeTypePromises = pokemonTypes.map((pokeType) => {
+      return new Promise<INamedApiResource<IPokemon>[]>(async (resolve) => {
+        const res = await PokeAPI.Type.resolve(pokeType)
+        const pokies = Object.values(res.pokemon || {}).map(({pokemon}) => pokemon)
+        resolve(pokies)
+      })
+    })
+
+    try{
+      Promise.all(pokeTypePromises).then((values) => {
+        const pokemonByTypes = values.flat()
+        setData(pokemonByTypes)
+        setPokemon(pokemonByTypes)
+      })
     } catch (error) {
       setError(error)
     }
@@ -164,7 +192,9 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
       removeFavourite,
       filters,
       addFilter,
-      removeFilter
+      removeFilter,
+      types,
+      setTypes
     }}>
       {children}
     </PokemonContext.Provider>
@@ -172,13 +202,13 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
 }
 
 export const usePokemonContext = () => {
-  const pokemon = useContext(PokemonContext);
+  const pokemon = useContext(PokemonContext)
 
   if (!pokemon) {
-    throw Error('Cannot use `usePokemonContext` outside of `PokemonProvider`');
+    throw Error('Cannot use `usePokemonContext` outside of `PokemonProvider`')
   }
 
-  return pokemon;
+  return pokemon
 }
 
-export default PokemonProvider;
+export default PokemonProvider
