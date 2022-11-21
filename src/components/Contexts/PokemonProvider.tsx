@@ -87,20 +87,9 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
     }
 
     let filteredData = [...data]
-    const fields = Object.keys(filters) as Field[]
-
-    for (const field of fields) {
-      switch (field) {
-        case Field.favourite: {
-          const value = filters[field]
-          if (value) {
-            filteredData = filteredData.filter((pokemon) => favourites.includes(pokemon.name))
-          } else if (value === false) {
-            filteredData = filteredData.filter((pokemon) => !favourites.includes(pokemon.name))
-          }
-          break
-        }
-      }
+    
+    if (filters[Field.favourite]) {
+      filteredData = filteredData.filter((pokemon) => favourites.includes(pokemon.name))
     }
 
     if (query) {
@@ -111,11 +100,7 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
       const aId = getIdFromUrl(a.url)
       const bId = getIdFromUrl(b.url)
 
-      if (aId > bId) {
-        return 1
-      } else {
-        return -1
-      }
+      return aId > bId ? 1 : -1;
     })
 
     setPokemon(filteredData)
@@ -160,7 +145,7 @@ const PokemonProvider: React.FC<PokemonProviderProps> = ({ children }) => {
   }
 
   function removeFavourite(pokemon: INamedApiResource<IPokemon>) {
-    setFavourites(favourites.filter((favourite) => favourite !== pokemon.name))
+    setFavourites(favourites.filter((favourite: string) => favourite !== pokemon.name))
   }
 
   function addFilter(field: Field, value: FilterValue) {
