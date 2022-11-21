@@ -30,9 +30,7 @@ const PokemonTypeIcon: React.FC<PokemonTypeIconProps> = ({
 }) => {
   const [icon, setIcon] = useState<React.FC>(getIcon())
 
-  useEffect(() => {
-    setIcon(getIcon);
-  }, [type])
+  useEffect(() => setIcon(getIcon), [type])
 
   function getIcon() {
     switch (type) {
